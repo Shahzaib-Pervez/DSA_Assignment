@@ -1,215 +1,233 @@
 #include <iostream>
 using namespace std;
-class Node {
-private:
-    int value;          
-    Node* next_node;    
-
-public:
-    Node(int val = 0, Node* next = nullptr)
-        : value(val), next_node(next) {}
-    int retrieve() const { return value; }
-    Node* next() const { return next_node; }
-    void set_next(Node* next) { next_node = next; }
-    friend class List;
-};
-class List {
-private:
-    Node* list_head;  
-public:
-    List() : list_head(nullptr) {}
-    ~List() {
-        while (!empty())
-            pop_front();  
+class node{
+    private:
+    node* next_node;
+    int elem;
+    public:
+    node():next_node(nullptr), elem(0){}
+    node(int val , node* next=nullptr): next_node(next), elem(val){}
+    int retrieve(){
+        return elem;
     }
-    bool empty() const {
-        return (list_head == nullptr);
+    node* next(){
+        return next_node;
     }
-    int size() const {
-        int count = 0;
-        for (Node* ptr = list_head; ptr != nullptr; ptr = ptr->next())
-            ++count;
-        return count;
+    void set_next(node* next){
+        next_node = next;
     }
-    int front() const {
-        if (empty()) {
-            cerr << "List is empty! Cannot access front element.\n";
-            return -1;
+    };
+    class list{
+        private:
+        node* list_head;
+        public:
+        bool empty(){
+            return (list_head == nullptr);
         }
-        return list_head->retrieve();
-    }
-    int end() const {
-        if (empty()) {
-            cerr << "List is empty! Cannot access end element.\n";
-            return -1;
+        node* head(){
+            return list_head;
         }
-
-        Node* ptr = list_head;
-        while (ptr->next() != nullptr)
-            ptr = ptr->next();
-        return ptr->retrieve();
-    }
-    Node* head() const {
-        return list_head;
-    }
-    int count(int n) const {
-        int node_count = 0;
-        for (Node* ptr = head(); ptr != nullptr; ptr = ptr->next()) {
-            if (ptr->retrieve() == n)
-                ++node_count;
-        }
-        return node_count;
-    }
-    void push_front(int n) {
-        Node* new_node = new Node(n, list_head);
-        list_head = new_node;
-    }
-    void push_end(int n) {
-        Node* new_node = new Node(n, nullptr);
-
-        if (empty()) {
-            list_head = new_node;
-            return;
-        }
-
-        Node* ptr = list_head;
-        while (ptr->next() != nullptr)
-            ptr = ptr->next();
-        ptr->set_next(new_node);
-    }
-    void push_between(int index, int n) {
-        int size_val = size();
-
-        if (index < 0 || index > size_val) {
-            cerr << "Invalid index! Must be between 0 and " << size_val << ".\n";
-            return;
-        }
-
-        // Case 1: Insert at the beginning
-        if (index == 0) {
-            push_front(n);
-            return;
-        }
-
-        // Case 2: Insert at the end
-        if (index == size_val) {
-            push_end(n);
-            return;
-        }
-
-        // Case 3: Insert in the middle
-        Node* ptr = list_head;
-        for (int i = 0; i < index - 1; ++i) {
-            ptr = ptr->next();
-        }
-        // ptr now points to the node before insertion position
-        Node* new_node = new Node(n, ptr->next());
-        ptr->set_next(new_node);
-    }
-    int pop_front() {
-        if (empty()) {
-            cerr << "List is empty! Cannot pop front.\n";
-            return -1;
-        }
-
-        int value = list_head->retrieve();
-        Node* temp = list_head;
-        list_head = list_head->next();
-        delete temp;
-        return value;
-    }
-    int pop_end() {
-        if (empty()) {
-            cerr << "List is empty! Cannot pop end.\n";
-            return -1;
-        }
-
-        // Case 1: only one node
-        if (list_head->next() == nullptr) {
-            int value = list_head->retrieve();
-            delete list_head;
-            list_head = nullptr;
-            return value;
-        }
-
-        // Case 2: more than one node
-        Node* ptr = list_head;
-        while (ptr->next()->next() != nullptr)
-            ptr = ptr->next();
-
-        int value = ptr->next()->retrieve();
-        delete ptr->next();
-        ptr->set_next(nullptr);
-        return value;
-    }
-    int erase(int n) {
-        int count_removed = 0;
-
-        // Handle nodes at the beginning of the list
-        while (list_head != nullptr && list_head->retrieve() == n) {
-            Node* temp = list_head;
-            list_head = list_head->next();
-            delete temp;
-            ++count_removed;
-        }
-
-        // Now handle remaining nodes
-        Node* ptr = list_head;
-        while (ptr != nullptr && ptr->next() != nullptr) {
-            if (ptr->next()->retrieve() == n) {
-                Node* temp = ptr->next();
-                ptr->next_node = ptr->next()->next();  
-                delete temp;
-                ++count_removed;
-            } else {
-                ptr = ptr->next();  
+        void display(){
+            for(node* ptr = head();ptr!= nullptr; ptr=ptr->next()){
+                cout<<"  "<< ptr->retrieve();
             }
         }
+        void push_front(int val){
+            list_head = new node(val, head());
+        }
+        void push_end(int val){
+            node* newN = new node(val,nullptr);
+            if(empty()){
+                list_head= newN;
+                return;
+            }
+            node* temp = head();
+            while(temp->next()!=nullptr){
+                temp = temp->next();
+            }
+            temp->set_next(newN);
+        }
+        void push_mid(int val){
+            node* newNode = new node(val,nullptr);
+            if(empty()){
+                list_head=newNode;
+                return;
+            }
+            node* slow = head();
+            node* fast = head();
+            while(fast->next()!=nullptr && fast->next()->next()!=nullptr){
+                slow = slow->next();
+                fast = fast->next()->next();
+            }
+            node* temp = slow->next();
+            slow->set_next(newNode);
+            newNode->set_next(temp);
 
-        return count_removed;
-    }
-    void display() const {
-        if (empty()) {
-            cout << "List is empty.\n";
-            return;
+        }
+        void insert_at(int val, int pos){
+            node* newN=new node(val, nullptr);
+            if(empty()){
+                list_head=newN;
+                return;
+            }
+            if(pos<0){
+                pos=0;
+            }
+            node* temp = head();
+            int index = 0;
+            while((temp->next()!=nullptr)&& index<pos-1){
+                temp = temp -> next();
+                index++;
+            }
+
+            newN->set_next(temp->next());
+            temp->set_next(newN);
+        }
+        
+        void pop_front(){
+            if(empty()){
+                return;
+            }
+            node* temp = head();
+            list_head=list_head->next();
+            delete temp;
+        }
+        void pop_end(){
+            if(empty()){
+                return;
+            }
+            if(head()->next()==nullptr){
+                delete list_head;
+                list_head =nullptr;
+                return;
+            }
+            node* temp = head()->next();
+            node* prev = head();
+            while(temp->next()!=nullptr){
+                prev= prev->next();
+                temp = temp->next();
+            }
+            delete prev->next();
+            prev->set_next(nullptr);
+        }
+        void pop_mid(){
+            if(empty()){
+                return;
+            }
+            if(list_head->next()==nullptr){
+                delete head();
+                list_head=nullptr;
+            }
+            node* prev = nullptr;
+            node* fast = head();
+            node * slow = head();
+            while((fast->next()!= nullptr) && (fast->next()->next()!= nullptr)){
+                prev = slow;
+                slow= slow->next();
+                fast= fast->next()->next();
+            }
+            node* temp = slow;
+            prev->set_next(temp->next());
+            delete temp;
         }
 
-        for (Node* ptr = list_head; ptr != nullptr; ptr = ptr->next())
-            cout << ptr->retrieve() << " -> ";
-        cout << "nullptr\n";
+        void pop_at(int pos){
+            if(empty()){
+                return;
+            }
+            if(pos<=0){
+                pos=0;
+                pop_front();
+                return;
+            }
+            if(pos>=size()){
+                pop_end();
+                return;
+            }
+            node* temp = head();
+            int index = 0;
+            while((temp->next()!=nullptr)&&(index<pos-1)){
+                temp = temp->next();
+                ++index;
+            }
+            node* current = temp->next();
+            temp->set_next(current->next());
+            delete current;
+
+        }
+        int size(){
+            int count = 0;
+            for(node* ptr = head (); ptr!=nullptr; ptr= ptr->next()){
+                ++count;
+            }
+            return count;
+        }
+        int erase(int val){
+            int count=0;
+            if(empty()){
+                return 0;
+            }
+            while((head()!=nullptr)&&(head()->retrieve()==val)){
+                pop_front();
+                ++count;
+            }
+            node* temp = head();
+            while(temp->next()!=nullptr){
+                if(temp->next()->retrieve()==val){
+                    node* current = temp->next();
+                    temp->set_next(current->next());
+                    delete current;
+                    ++count;
+                }
+                else{
+                    temp=temp->next();
+                }
+            }
+            return  count;
+        }
+        
+        void reverse(){
+            node* prev = nullptr;
+            node* cur = list_head;
+            node* next = nullptr;
+            while(cur!=nullptr){
+                next = cur->next();
+                cur->set_next(prev);
+                prev=cur;
+                cur=next;
+            }
+        list_head =prev;
+        }
+        void push( int n){
+            node* newN = new node(n);
+            for(node* ptr=head(); ptr!=nullptr;ptr= ptr->next()){
+                if(n<=head()->retrieve()){
+                push_front(n);
+                return;
+                }
+                if(n<=ptr->next()->retrieve()){
+                    newN->set_next(ptr->next());
+                    ptr->set_next(newN);
+                }
+            }
+            
+        }
+    };
+
+    int main(){
+        list ls;
+        // ls.push_front(65);
+        // ls.push_end(66);
+        // ls.push_mid(68);
+        // ls.push_end(69);
+        // ls.insert_at(67,3);
+        // // ls.pop_front();
+        // // ls.pop_at(2);
+        // // ls.erase(68);
+        // // ls.erase(634);
+        // ls.erase(68);
+        ls.push(5);
+
+        // ls.reverse();
+        ls.display();
     }
-};
-int main() {
-    List lst;  
-    cout << "Pushing front 10, 20, 30 (30 will become the head):\n";
-    lst.push_front(10);
-    lst.push_front(20);
-    lst.push_front(30);
-    lst.display();  
-
-    cout << "\nPushing end 40, 50 (these will be appended at tail):\n";
-    lst.push_end(40);
-    lst.push_end(50);
-    lst.display(); 
-
-    cout << "\nFront element: " << lst.front() << endl;
-    cout << "End element: " << lst.end() << endl;
-    cout << "Size of list: " << lst.size() << endl;
-
-    cout << "\nCounting how many times 20 appears: " << lst.count(20) << endl;
-
-    cout << "\nErasing all nodes with value 20:\n";
-    lst.erase(20);
-    lst.display();
-
-    cout << "\nPopping front (removes head node): " << lst.pop_front() << endl;
-    lst.display();
-
-    cout << "\nPopping end (removes last node): " << lst.pop_end() << endl;
-    lst.display();
-
-    cout << "\nIs list empty? " << (lst.empty() ? "Yes" : "No") << endl;
-    cout << "Final size of list: " << lst.size() << endl;
-
-    return 0;
-}
