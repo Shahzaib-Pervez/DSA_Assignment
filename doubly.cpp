@@ -308,10 +308,3 @@ class list{
         ls.display();
        
     }
-
-
-        return;
-    }
-    cout<<arr[i];
-    print(arr, n, i+1);
-}
