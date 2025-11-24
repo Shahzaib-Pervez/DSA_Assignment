@@ -185,33 +185,6 @@ class node{
             }
             return  count;
         }
-        
-        void reverse(){
-            node* prev = nullptr;
-            node* cur = list_head;
-            node* next = nullptr;
-            while(cur!=nullptr){
-                next = cur->next();
-                cur->set_next(prev);
-                prev=cur;
-                cur=next;
-            }
-        list_head =prev;
-        }
-        void push( int n){
-            node* newN = new node(n);
-            for(node* ptr=head(); ptr!=nullptr;ptr= ptr->next()){
-                if(n<=head()->retrieve()){
-                push_front(n);
-                return;
-                }
-                if(n<=ptr->next()->retrieve()){
-                    newN->set_next(ptr->next());
-                    ptr->set_next(newN);
-                }
-            }
-            
-        }
     };
 
     int main(){
